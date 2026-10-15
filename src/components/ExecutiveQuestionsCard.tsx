@@ -10,6 +10,7 @@ import {
   TrendingUp,
   ExternalLink,
   ChevronRight,
+  ShieldCheck,
 } from 'lucide-react';
 
 interface ExecutiveAnswers {
@@ -84,26 +85,27 @@ export function ExecutiveQuestionsCard({ data }: { data: ExecutiveAnswers }) {
   ];
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-lg">
-      <div className="px-6 py-4 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+    <div className="bg-[#0B1728] border border-[#182C48] rounded-xl overflow-hidden shadow-xl">
+      <div className="px-6 py-4 bg-[#070F22] border-b border-[#182C48] flex items-center justify-between">
         <div>
           <div className="flex items-center space-x-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-amber-400 animate-pulse" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#D4AF37] animate-pulse" />
             <h2 className="text-base font-bold text-white tracking-tight">
               The 5 Executive Command Answers
             </h2>
           </div>
           <p className="text-xs text-slate-400 mt-0.5">
-            Real-time, persited operational truths answering executive inquiry directly from Postgres records
+            Real-time operational truths synthesized directly from Supabase PostgreSQL records
           </p>
         </div>
-        <span className="text-[11px] font-mono bg-blue-900/40 text-blue-300 border border-blue-700/50 px-2.5 py-1 rounded">
-          Persisted Truth Engine
+        <span className="text-[11px] font-mono bg-[#0F223D] text-[#D4AF37] border border-[#1E3A5F] px-2.5 py-1 rounded flex items-center gap-1.5 font-bold">
+          <ShieldCheck className="h-3.5 w-3.5" />
+          <span>Grounded DB Engine</span>
         </span>
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-slate-800 bg-slate-900/40 overflow-x-auto no-scrollbar">
+      <div className="flex border-b border-[#182C48] bg-[#081220] overflow-x-auto no-scrollbar">
         {questions.map((q) => {
           const Icon = q.icon;
           const isSelected = selectedTab === q.id;
@@ -111,10 +113,10 @@ export function ExecutiveQuestionsCard({ data }: { data: ExecutiveAnswers }) {
             <button
               key={q.id}
               onClick={() => setSelectedTab(q.id)}
-              className={`flex items-center space-x-2 px-4 py-3 text-xs font-medium border-b-2 whitespace-nowrap transition ${
+              className={`flex items-center space-x-2 px-4 py-3 text-xs font-semibold border-b-2 whitespace-nowrap transition ${
                 isSelected
-                  ? 'border-amber-400 text-amber-400 bg-slate-800/40 font-semibold'
-                  : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/20'
+                  ? 'border-[#D4AF37] text-[#D4AF37] bg-[#0E1F36]'
+                  : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-[#0B1728]'
               }`}
             >
               <Icon className="h-4 w-4" />
@@ -130,14 +132,14 @@ export function ExecutiveQuestionsCard({ data }: { data: ExecutiveAnswers }) {
         {selectedTab === 1 && (
           <div className="space-y-3">
             <div className="text-xs text-slate-400 mb-2">
-              Deliverables currently recorded in the system with their author, reviewer, and verified evidence links:
+              Deliverables recorded in system with explicit submitter, reviewer, and verified evidence links:
             </div>
             {data.q1_responsibilities.length === 0 ? (
               <div className="text-sm text-slate-500 py-4 text-center">No deliverables recorded yet.</div>
             ) : (
-              <div className="divide-y divide-slate-800 rounded-lg border border-slate-800 overflow-hidden">
+              <div className="divide-y divide-[#182C48] rounded-lg border border-[#182C48] overflow-hidden">
                 {data.q1_responsibilities.map((item) => (
-                  <div key={item.deliverableId} className="p-3.5 bg-slate-900/80 hover:bg-slate-800/40 flex items-center justify-between transition">
+                  <div key={item.deliverableId} className="p-3.5 bg-[#0B1728] hover:bg-[#0E2038] flex items-center justify-between transition">
                     <div>
                       <div className="font-semibold text-sm text-slate-100 flex items-center gap-2">
                         {item.title}
@@ -157,7 +159,7 @@ export function ExecutiveQuestionsCard({ data }: { data: ExecutiveAnswers }) {
                         href={item.evidenceLink}
                         target="_blank"
                         rel="noreferrer"
-                        className="flex items-center space-x-1.5 text-xs text-blue-400 hover:text-blue-300 bg-blue-950/60 border border-blue-800 px-3 py-1.5 rounded-md transition"
+                        className="flex items-center space-x-1.5 text-xs text-[#D4AF37] hover:text-[#F1C40F] bg-[#0F223D] border border-[#1E3A5F] px-3 py-1.5 rounded-md transition font-semibold"
                       >
                         <span>Inspect Evidence</span>
                         <ExternalLink className="h-3.5 w-3.5" />
@@ -174,11 +176,11 @@ export function ExecutiveQuestionsCard({ data }: { data: ExecutiveAnswers }) {
         {selectedTab === 2 && (
           <div className="space-y-3">
             <div className="text-xs text-slate-400 mb-2">
-              Principle: "Measure outcomes, not just online activity". Completed work verified by attached deliverables:
+              Principle: &ldquo;Measure outcomes, not just online activity&rdquo;. Completed deliverables verified by attached artifacts:
             </div>
             <div className="space-y-2">
               {data.q2_completedWithEvidence.map((t) => (
-                <div key={t.taskId} className="p-3.5 bg-slate-950/60 border border-slate-800 rounded-lg">
+                <div key={t.taskId} className="p-3.5 bg-[#060D1A] border border-[#182C48] rounded-lg">
                   <div className="flex items-center justify-between">
                     <span className="font-medium text-sm text-slate-200">{t.title}</span>
                     <span className={`text-xs px-2 py-0.5 rounded font-semibold ${
@@ -212,7 +214,7 @@ export function ExecutiveQuestionsCard({ data }: { data: ExecutiveAnswers }) {
                   {data.q3_risks.blockedTasks.map((b) => (
                     <div key={b.id} className="p-2.5 bg-red-950/40 border border-red-800/40 rounded text-xs">
                       <div className="font-semibold text-red-200">{b.title}</div>
-                      <div className="text-red-300 mt-1">Blocker: {b.reason}</div>
+                      <div className="text-red-300 mt-1 font-medium">Blocker: {b.reason}</div>
                       <div className="text-slate-400 mt-1 text-[11px]">
                         Owner: {b.owner} • Unit: {b.businessUnit}
                       </div>
@@ -224,7 +226,7 @@ export function ExecutiveQuestionsCard({ data }: { data: ExecutiveAnswers }) {
 
             {/* Overdue */}
             <div className="p-4 bg-amber-950/20 border border-amber-900/40 rounded-lg">
-              <div className="flex items-center space-x-2 text-amber-400 font-semibold text-xs uppercase tracking-wider mb-3">
+              <div className="flex items-center space-x-2 text-[#D4AF37] font-semibold text-xs uppercase tracking-wider mb-3">
                 <AlertTriangle className="h-4 w-4" />
                 <span>Overdue Deadlines ({data.q3_risks.overdueTasks.length})</span>
               </div>
@@ -252,22 +254,22 @@ export function ExecutiveQuestionsCard({ data }: { data: ExecutiveAnswers }) {
             <div className="text-xs text-slate-400 mb-2">
               Measured delivery reliability calculated from completed tasks vs commitments across business units:
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {data.q4_teamDeliveryRate.map((team) => (
-                <div key={team.unitId} className="p-3.5 bg-slate-950/60 border border-slate-800 rounded-lg">
+                <div key={team.unitId} className="p-3.5 bg-[#060D1A] border border-[#182C48] rounded-lg">
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold text-sm text-slate-200">{team.name}</span>
-                    <span className="text-xs font-mono font-bold text-amber-400">{team.deliveryRate}%</span>
+                    <span className="font-semibold text-xs text-slate-200 truncate pr-1">{team.name}</span>
+                    <span className="text-xs font-mono font-bold text-[#D4AF37]">{team.deliveryRate}%</span>
                   </div>
-                  <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden mt-2">
+                  <div className="w-full bg-[#182C48] h-2 rounded-full overflow-hidden mt-2">
                     <div
-                      className="bg-amber-400 h-full rounded-full transition-all duration-500"
+                      className="bg-gradient-to-r from-[#D4AF37] to-[#F1C40F] h-full rounded-full transition-all duration-500"
                       style={{ width: `${team.deliveryRate}%` }}
                     />
                   </div>
-                  <div className="text-[11px] text-slate-400 mt-2 flex justify-between">
+                  <div className="text-[10px] text-slate-400 mt-2 flex justify-between">
                     <span>{team.completedTasks} completed</span>
-                    <span>{team.totalTasks} total tasks</span>
+                    <span>{team.totalTasks} total</span>
                   </div>
                 </div>
               ))}
@@ -283,7 +285,7 @@ export function ExecutiveQuestionsCard({ data }: { data: ExecutiveAnswers }) {
             </div>
             <div className="space-y-2">
               {data.q5_managementActions.map((action) => (
-                <div key={action.id} className="p-3.5 bg-slate-950/80 border border-slate-800 rounded-lg flex items-center justify-between">
+                <div key={action.id} className="p-3.5 bg-[#060D1A] border border-[#182C48] rounded-lg flex items-center justify-between">
                   <div>
                     <div className="font-semibold text-sm text-slate-100 flex items-center gap-2">
                       {action.subject}
@@ -300,7 +302,7 @@ export function ExecutiveQuestionsCard({ data }: { data: ExecutiveAnswers }) {
                   </div>
                   <a
                     href="/app/approvals"
-                    className="flex items-center space-x-1 text-xs text-amber-400 hover:text-amber-300 bg-amber-500/10 border border-amber-500/30 px-3 py-1.5 rounded transition"
+                    className="flex items-center space-x-1 text-xs text-[#D4AF37] hover:text-[#F1C40F] bg-[#0F223D] border border-[#1E3A5F] px-3 py-1.5 rounded transition font-bold"
                   >
                     <span>Decide</span>
                     <ChevronRight className="h-3.5 w-3.5" />

@@ -12,6 +12,8 @@ export type Role =
 
 export type EngagementType = 'employee' | 'intern' | 'contractor' | 'temporary';
 
+export type VerificationStatus = 'verified' | 'pending_verification' | 'unverified' | 'disputed';
+
 export type TaskStatus =
   | 'Backlog'
   | 'Ready'
@@ -31,6 +33,7 @@ export interface BusinessUnit {
   description: string;
   color: string;
   status: string;
+  verification_status?: VerificationStatus;
 }
 
 export interface User {
@@ -164,9 +167,9 @@ export interface ApprovalRequest {
   id: string;
   subject: string;
   details?: string;
-  entity_type: 'deliverable' | 'task' | 'leave' | 'strategic';
+  entity_type: 'deliverable' | 'task' | 'leave' | 'strategic' | 'agent_tool_action';
   entity_id?: string;
-  requester_id: string;
+  requester_id?: string;
   requester?: { full_name: string; email: string };
   approver_id?: string;
   approver?: { full_name: string };
@@ -204,5 +207,208 @@ export interface AuditLog {
   entity_type: string;
   entity_id?: string;
   metadata?: Record<string, unknown>;
+  created_at: string;
+}
+
+// ==========================================
+// KNOWLEDGE MANAGEMENT TYPES
+// ==========================================
+
+export interface KnowledgeDocument {
+  id: string;
+  organisation_id?: string;
+  business_unit_id?: string;
+  business_unit?: { name: string; code: string };
+  department?: string;
+  title: string;
+  file_name: string;
+  file_type: string;
+  file_size: number;
+  storage_path?: string;
+  content_text?: string;
+  doc_status: 'active' | 'archived' | 'deprecated';
+  verification_status: VerificationStatus;
+  author?: string;
+  confidence_score: number;
+  verified_at?: string;
+  last_reviewed_at?: string;
+  metadata?: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+  chunks_count?: number;
+}
+
+export interface KnowledgeChunk {
+  id: string;
+  document_id: string;
+  document_title?: string;
+  business_unit_id?: string;
+  chunk_index: number;
+  content: string;
+  token_count: number;
+  metadata?: Record<string, unknown>;
+  created_at: string;
+  similarity?: number;
+}
+
+export interface KnowledgeItem {
+  id: string;
+  business_unit_id?: string;
+  business_unit?: { name: string; code: string };
+  item_type: 'fact' | 'assumption' | 'proposed_decision' | 'verified_decision';
+  title: string;
+  statement: string;
+  source_document_id?: string;
+  source_document?: { title: string; file_name: string };
+  confidence: number;
+  verification_status: VerificationStatus;
+  verified_by?: string;
+  verified_at?: string;
+  review_due_date?: string;
+  metadata?: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface KnowledgeGap {
+  id: string;
+  business_unit_id?: string;
+  business_unit?: { name: string; code: string };
+  topic: string;
+  description: string;
+  requested_by: string;
+  priority: 'Low' | 'Medium' | 'High' | 'Critical';
+  status: 'open' | 'in_progress' | 'resolved';
+  resolved_at?: string;
+  created_at: string;
+}
+
+// ==========================================
+// WHATSAPP CLOUD API TYPES
+// ==========================================
+
+export type WhatsAppMessageType =
+  | 'text'
+  | 'image'
+  | 'document'
+  | 'audio'
+  | 'voice'
+  | 'template'
+  | 'interactive';
+
+export type WhatsAppMessageDirection = 'inbound' | 'outbound';
+
+export type WhatsAppMessageStatus =
+  | 'received'
+  | 'sent'
+  | 'delivered'
+  | 'read'
+  | 'failed';
+
+export interface WhatsAppConversation {
+  id: string;
+  customer_phone: string;
+  customer_name?: string;
+  business_unit_id?: string;
+  business_unit?: { name: string; code: string };
+  channel: 'executive_command' | 'customer_service';
+  active_agent: string;
+  status: 'open' | 'closed' | 'handed_over';
+  handover_reason?: string;
+  opt_in_status: boolean;
+  last_message_at: string;
+  created_at: string;
+  recent_messages?: WhatsAppMessage[];
+}
+
+export interface WhatsAppMessage {
+  id: string;
+  conversation_id: string;
+  wamid?: string;
+  direction: WhatsAppMessageDirection;
+  sender_phone: string;
+  recipient_phone: string;
+  message_type: WhatsAppMessageType;
+  content?: string;
+  media_url?: string;
+  transcription?: string;
+  status: WhatsAppMessageStatus;
+  error_message?: string;
+  business_unit_id?: string;
+  metadata?: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface WhatsAppTemplate {
+  id: string;
+  name: string;
+  category: string;
+  language: string;
+  status: string;
+  components: Array<{ type: string; text?: string }>;
+  created_at: string;
+}
+
+// ==========================================
+// AGENT ORCHESTRATION & SAFETY TYPES
+// ==========================================
+
+export type ActionRiskTier =
+  | 'read_only'
+  | 'reversible_internal'
+  | 'external_communication'
+  | 'high_impact';
+
+export type SpecialistAgentName =
+  | 'Executive Chief of Staff'
+  | 'Research and Knowledge Agent'
+  | 'Project and Task Manager'
+  | 'Staff Performance Agent'
+  | 'Finance and Business Intelligence Agent'
+  | 'Sales and CRM Agent'
+  | 'Marketing and Content Agent'
+  | 'Music Business, Royalties and Rights Agent'
+  | 'Events and Artist Management Agent'
+  | 'Real Estate and Facility Operations Agent'
+  | 'Software Development Agent'
+  | 'Customer Support Agent'
+  | 'Document and Contract Analysis Agent';
+
+export interface AgentRun {
+  id: string;
+  session_id: string;
+  agent_name: string;
+  prompt: string;
+  structured_context?: Record<string, unknown>;
+  final_response?: string;
+  total_tokens?: number;
+  execution_time_ms?: number;
+  status: 'running' | 'completed' | 'failed' | 'blocked_for_approval';
+  created_at: string;
+  tool_calls?: AgentToolCall[];
+}
+
+export interface AgentToolCall {
+  id: string;
+  run_id: string;
+  agent_name: string;
+  tool_name: string;
+  parameters: Record<string, unknown>;
+  result?: Record<string, unknown>;
+  risk_tier: ActionRiskTier;
+  approval_status: 'auto_approved' | 'pending_approval' | 'approved' | 'rejected';
+  approved_by?: string;
+  execution_status: 'success' | 'failed' | 'blocked';
+  created_at: string;
+}
+
+export interface AgentMemory {
+  id: string;
+  entity_type: string;
+  entity_id: string;
+  memory_key: string;
+  memory_value: string;
+  confidence: number;
+  user_consented: boolean;
+  ttl_expires_at?: string;
   created_at: string;
 }

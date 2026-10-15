@@ -1,26 +1,60 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #060D1A;
+  --foreground: #F8FAFC;
+  --navy-dark: #060D1A;
+  --navy-surface: #0B1728;
+  --navy-card: #0F1F35;
+  --navy-border: #182C48;
+  --navy-hover: #1E385B;
+  --gold-primary: #D4AF37;
+  --gold-light: #F1C40F;
+  --gold-dark: #AA820A;
+  --gold-muted: #E2BC56;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Gold Gradient & Badges */
+.gold-gradient-text {
+  background: linear-gradient(135deg, #FFF0B3 0%, #D4AF37 50%, #AA820A 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gold-gradient-border {
+  border: 1px solid rgba(212, 175, 55, 0.3);
+}
+
+.navy-card {
+  background-color: #0B1728;
+  border: 1px solid #182C48;
+  border-radius: 0.75rem;
+}
+
+.navy-card:hover {
+  border-color: #24416B;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #060D1A;
+}
+::-webkit-scrollbar-thumb {
+  background: #182C48;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #D4AF37;
 }

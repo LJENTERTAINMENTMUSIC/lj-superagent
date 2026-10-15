@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   RefreshCw,
   CheckCircle2,
@@ -10,172 +10,165 @@ import {
   Layers,
   ArrowRightLeft,
   Database,
+  MessageSquare,
+  Music,
+  Cloud,
+  FileText,
+  AlertTriangle,
+  Play,
 } from 'lucide-react';
-import { IntegrationConnection, User } from '@/lib/types';
+import { User } from '@/lib/types';
 
-interface IntegrationsHubProps {
-  connections: IntegrationConnection[];
-  currentUser: User;
-  onRefresh: () => void;
+interface ProviderStatus {
+  provider: string;
+  name: string;
+  category: string;
+  status: 'connected' | 'configured_mock' | 'configured_read_only' | 'error';
+  permissions: string[];
+  lastSync: string;
+  error: string | null;
+  reconnectionInstructions: string;
 }
 
-export function IntegrationsHub({
-  connections,
-  currentUser,
-  onRefresh,
-}: IntegrationsHubProps) {
-  const [syncing, setSyncing] = useState(false);
-  const [syncResult, setSyncResult] = useState<string | null>(null);
+export function IntegrationsHub({ currentUser }: { currentUser?: User }) {
+  const [providers, setProviders] = useState<ProviderStatus[]>([]);
+  const [failedJobsCount, setFailedJobsCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [retryingJobs, setRetryingJobs] = useState(false);
+  const [retryResult, setRetryResult] = useState<string | null>(null);
 
-  const handleSyncClickUp = async () => {
+  const fetchIntegrations = async () => {
     try {
-      setSyncing(true);
-      setSyncResult(null);
-      const res = await fetch('/api/integrations/clickup/sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ actorId: currentUser.id }),
-      });
+      setLoading(true);
+      const res = await fetch('/api/integrations/status');
       const data = await res.json();
-      setSyncResult(data.message || 'Sync operation completed.');
-      onRefresh();
+      setProviders(data.providers || []);
+      setFailedJobsCount(data.failedJobsCount || 0);
     } catch (err) {
-      console.error(err);
-      setSyncResult('Sync simulation encountered an error.');
+      console.error('Error fetching integrations:', err);
     } finally {
-      setSyncing(false);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchIntegrations();
+  }, []);
+
+  const handleRetryFailedJobs = async () => {
+    try {
+      setRetryingJobs(true);
+      setRetryResult(null);
+      const res = await fetch('/api/jobs/retry', { method: 'POST', body: JSON.stringify({}) });
+      const data = await res.json();
+      setRetryResult(`Processed ${data.processed?.length || 0} failed jobs from queue.`);
+      await fetchIntegrations();
+    } catch (err: any) {
+      setRetryResult(`Error retrying jobs: ${err.message}`);
+    } finally {
+      setRetryingJobs(false);
     }
   };
 
   return (
     <div className="space-y-6">
-      {/* Overview Banner */}
-      <div className="bg-slate-900 border border-slate-800 p-6 rounded-xl space-y-4">
-        <div className="flex items-center justify-between">
+      {/* Top Telemetry Header */}
+      <div className="bg-[#0B1728] border border-[#182C48] p-6 rounded-xl space-y-4 shadow-xl">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="flex items-center space-x-3">
-            <div className="h-10 w-10 rounded-lg bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
+            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-[#D4AF37] to-[#8C6D1F] flex items-center justify-center text-[#060D1A] font-black shadow">
               <Layers className="h-5 w-5" />
             </div>
             <div>
               <h3 className="text-base font-bold text-white">
-                LJ Hybrid Task Integration Architecture
+                LJ SuperAgent Enterprise Integration Gateway
               </h3>
               <p className="text-xs text-slate-400">
-                Bridging ClickUp operational tasks with the custom LJ-BOS Postgres portal
+                Direct authenticated APIs, verified inbound webhooks, and durable background retry queues
               </p>
             </div>
           </div>
-          <span className="text-xs font-mono bg-emerald-950 text-emerald-300 border border-emerald-800 px-3 py-1 rounded-full font-semibold">
-            Phase 2: Hybrid Bridge
-          </span>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={fetchIntegrations}
+              className="px-3 py-1.5 rounded-lg bg-[#0F223D] hover:bg-[#163156] border border-[#1E3A5F] text-xs text-slate-200 transition flex items-center gap-1.5"
+            >
+              <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+              <span>Refresh Health</span>
+            </button>
+          </div>
         </div>
 
-        {/* Strategy Roadmap Card */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs pt-2">
-          <div className="p-3 bg-slate-950/60 border border-slate-800 rounded-lg">
-            <div className="font-semibold text-amber-400 mb-1">Phase 1: Workflow</div>
-            <p className="text-slate-400">
-              Immediate task execution in ClickUp with structured lists, owners, deadlines & evidence requirements.
-            </p>
+        {/* Failed Queue Banner */}
+        {failedJobsCount > 0 && (
+          <div className="p-3.5 bg-amber-950/40 border border-amber-800/60 rounded-lg flex items-center justify-between">
+            <div className="flex items-center gap-2 text-xs text-amber-300">
+              <AlertTriangle className="h-4 w-4 text-amber-400" />
+              <span>
+                <strong>{failedJobsCount} failed background deliveries</strong> currently queued in durable retry table (<code className="font-mono text-[10px]">bos_failed_message_queue</code>).
+              </span>
+            </div>
+            <button
+              onClick={handleRetryFailedJobs}
+              disabled={retryingJobs}
+              className="px-3 py-1 rounded bg-[#D4AF37] hover:bg-[#F1C40F] disabled:opacity-50 text-[#060D1A] font-bold text-xs flex items-center gap-1 transition"
+            >
+              <Play className="h-3 w-3 fill-current" />
+              <span>{retryingJobs ? 'Retrying...' : 'Retry Queue'}</span>
+            </button>
           </div>
-          <div className="p-3 bg-slate-950/60 border border-amber-500/40 rounded-lg">
-            <div className="font-semibold text-amber-400 mb-1">Phase 2: Connect Portal (Active)</div>
-            <p className="text-slate-300">
-              Bi-directional mapping with single authoritative source of truth to avoid split-brain conflicts.
-            </p>
+        )}
+
+        {retryResult && (
+          <div className="p-2.5 bg-emerald-950/40 border border-emerald-800/60 text-emerald-300 text-xs rounded">
+            {retryResult}
           </div>
-          <div className="p-3 bg-slate-950/60 border border-slate-800 rounded-lg">
-            <div className="font-semibold text-slate-400 mb-1">Phase 3: Consolidate</div>
-            <p className="text-slate-500">
-              Gradual migration into dedicated LJ portal once permissions and user adoption are fully matured.
-            </p>
-          </div>
-        </div>
+        )}
       </div>
 
-      {/* Connected Integrations Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* ClickUp */}
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow transition hover:border-slate-700">
-          <div className="flex items-center justify-between">
-            <div className="font-bold text-sm text-white flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" />
-              ClickUp Enterprise
+      {/* Integration Providers Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {providers.map((p) => {
+          const isConnected = p.status === 'connected';
+          return (
+            <div
+              key={p.provider}
+              className="bg-[#0B1728] border border-[#182C48] rounded-xl p-5 space-y-3.5 hover:border-[#1E3A5F] transition flex flex-col justify-between"
+            >
+              <div className="space-y-2">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#0F223D] text-[#D4AF37] border border-[#1E3A5F]">
+                      {p.category}
+                    </span>
+                    <h4 className="text-sm font-bold text-white mt-1">{p.name}</h4>
+                  </div>
+                  <span
+                    className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded ${
+                      isConnected
+                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                        : 'bg-blue-500/20 text-blue-300 border border-blue-500/40'
+                    }`}
+                  >
+                    {p.status.replace('_', ' ')}
+                  </span>
+                </div>
+
+                <div className="text-[11px] text-slate-400 space-y-1 bg-[#060D1A] p-2.5 rounded border border-[#182C48] font-mono">
+                  <div>Last Health Check: <span className="text-slate-200">{new Date(p.lastSync).toLocaleTimeString()}</span></div>
+                  <div>Permissions: <span className="text-[#D4AF37]">{p.permissions.join(', ')}</span></div>
+                  {p.error && <div className="text-red-400">Error: {p.error}</div>}
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-[#182C48] space-y-1.5 text-[10px] text-slate-500">
+                <div className="font-semibold text-slate-400">Instructions:</div>
+                <div className="leading-tight text-slate-400">{p.reconnectionInstructions}</div>
+              </div>
             </div>
-            <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800">
-              Connected
-            </span>
-          </div>
-
-          <p className="text-xs text-slate-300">
-            Task synchronization with LJ-BOS-Core and Field-Operations lists.
-          </p>
-
-          <div className="text-[11px] text-slate-400 space-y-1 bg-slate-950 p-2.5 rounded border border-slate-800 font-mono">
-            <div>Authoritative Source: <strong className="text-slate-200">Postgres (LJ-BOS)</strong></div>
-            <div>Sync Interval: <strong className="text-slate-200">30 minutes</strong></div>
-            <div>Idempotency Keying: <strong className="text-emerald-400">Active</strong></div>
-          </div>
-
-          <button
-            onClick={handleSyncClickUp}
-            disabled={syncing}
-            className="w-full flex items-center justify-center space-x-1.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-semibold py-2 rounded-lg text-xs transition"
-          >
-            <RefreshCw className={`h-3.5 w-3.5 ${syncing ? 'animate-spin' : ''}`} />
-            <span>{syncing ? 'Reconciling Tasks...' : 'Trigger Idempotent Sync'}</span>
-          </button>
-
-          {syncResult && (
-            <div className="text-[11px] p-2 bg-emerald-950/60 border border-emerald-800 text-emerald-300 rounded flex items-center gap-1.5">
-              <CheckCircle2 className="h-3.5 w-3.5 flex-shrink-0" />
-              <span>{syncResult}</span>
-            </div>
-          )}
-        </div>
-
-        {/* Email Digest */}
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow transition hover:border-slate-700">
-          <div className="flex items-center justify-between">
-            <div className="font-bold text-sm text-white flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
-              Email Daily Digest
-            </div>
-            <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800">
-              Active
-            </span>
-          </div>
-
-          <p className="text-xs text-slate-300">
-            Automated scheduled daily digest at 18:00 WAT for pending approvals and overdue tasks.
-          </p>
-
-          <div className="text-[11px] text-slate-400 space-y-1 bg-slate-950 p-2.5 rounded border border-slate-800 font-mono">
-            <div>Sender: <strong className="text-slate-200">notifications@ljgroup.com</strong></div>
-            <div>Schedule: <strong className="text-slate-200">Daily 18:00 WAT</strong></div>
-          </div>
-        </div>
-
-        {/* WhatsApp Business */}
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow transition hover:border-slate-700">
-          <div className="flex items-center justify-between">
-            <div className="font-bold text-sm text-white flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-slate-500" />
-              WhatsApp Urgent Alerts
-            </div>
-            <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">
-              Unconfigured
-            </span>
-          </div>
-
-          <p className="text-xs text-slate-400">
-            Urgent blocker notifications for field operations and harvest security.
-          </p>
-
-          <div className="text-[11px] text-slate-500 bg-slate-950 p-2.5 rounded border border-slate-800">
-            Awaiting approved business BSP credentials and registered template sign-off.
-          </div>
-        </div>
+          );
+        })}
       </div>
     </div>
   );

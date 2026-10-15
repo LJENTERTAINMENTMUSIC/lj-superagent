@@ -14,14 +14,20 @@ import {
   Activity,
   ArrowUpRight,
   TrendingUp,
+  MessageSquare,
+  Bot,
+  BookOpen,
+  ShieldCheck,
+  CheckCircle2,
 } from 'lucide-react';
 import Link from 'next/link';
-import { User } from '@/lib/types';
+import { User, BusinessUnit } from '@/lib/types';
 
 export default function CEOCommandPage() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [currentPersona, setCurrentPersona] = useState<User | null>(null);
+  const [selectedBuId, setSelectedBuId] = useState<string>('all');
 
   const fetchData = async () => {
     try {
@@ -43,102 +49,119 @@ export default function CEOCommandPage() {
     fetchData();
   }, []);
 
+  // Filter business units if workspace selected
+  const displayedBUs = data?.businessUnits
+    ? selectedBuId === 'all'
+      ? data.businessUnits
+      : data.businessUnits.filter((b: any) => b.id === selectedBuId)
+    : [];
+
   return (
-    <div className="min-h-screen bg-[#070D1E] text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#060D1A] text-slate-100 flex flex-col font-sans">
       <Navigation
         currentPersona={currentPersona}
         onPersonaChange={(u) => setCurrentPersona(u)}
         availableUsers={data?.users || []}
+        selectedBuId={selectedBuId}
+        onSelectBu={(id) => setSelectedBuId(id)}
+        businessUnits={data?.businessUnits || []}
       />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {/* Executive Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-800/80 pb-6">
+        {/* Executive Hero Bar */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-[#182C48] pb-6">
           <div>
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-amber-400">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#D4AF37]">
               <Activity className="h-4 w-4" />
-              <span>Consolidated Executive Command Centre</span>
+              <span>Executive Command Overview · Base44 & Tool-Using AI Architecture</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white mt-1">
               LJ Conglomerate Operations Portfolio
             </h1>
-            <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-2xl">
-              Real-time workforce accountability, deliverable evidence verification, risk mitigation, and executive decision queue across all seven business entities.
+            <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-3xl">
+              Unified autonomous operating system orchestrating WhatsApp Business, central pgvector memory, 13 specialist agents, and workforce deliverable accountability across 8 business workspaces.
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center flex-wrap gap-2.5">
             <Link
-              href="/app/ai-assistant"
-              className="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs tracking-wide shadow-md transition flex items-center gap-1.5"
+              href="/app/whatsapp"
+              className="px-3.5 py-2 rounded-lg bg-[#0F223D] hover:bg-[#163156] text-[#D4AF37] border border-[#1E3A5F] font-bold text-xs flex items-center gap-1.5 transition"
             >
-              <span>AI Operations Brief</span>
-              <ArrowUpRight className="h-4 w-4" />
+              <MessageSquare className="h-3.5 w-3.5" />
+              <span>WhatsApp Command</span>
             </Link>
             <Link
-              href="/app/tasks"
-              className="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs transition"
+              href="/app/agents"
+              className="px-3.5 py-2 rounded-lg bg-[#D4AF37] hover:bg-[#F1C40F] text-[#060D1A] font-black text-xs flex items-center gap-1.5 transition shadow-lg"
             >
-              Master Task Board
+              <Bot className="h-3.5 w-3.5" />
+              <span>Agent Swarm</span>
+              <ArrowUpRight className="h-3.5 w-3.5" />
             </Link>
           </div>
         </div>
 
         {loading ? (
           <div className="p-16 text-center text-slate-400 text-sm">
-            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-amber-400 border-r-transparent align-[-0.125em]" />
-            <div className="mt-4 font-medium">Aggregating live operational records from Supabase PostgreSQL...</div>
+            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#D4AF37] border-r-transparent align-[-0.125em]" />
+            <div className="mt-4 font-semibold text-slate-300">
+              Aggregating live operational records and pgvector memory from Supabase...
+            </div>
           </div>
         ) : (
           <>
             {/* KPI Cards Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-4">
               {/* Active Business Units */}
-              <div className="bg-slate-900/80 border border-slate-800 p-4 rounded-xl shadow-sm space-y-1">
+              <div className="bg-[#0B1728] border border-[#182C48] p-4 rounded-xl shadow-md space-y-1">
                 <div className="flex items-center justify-between text-slate-400 text-xs">
-                  <span>Business Units</span>
+                  <span>Workspaces</span>
                   <Building2 className="h-4 w-4 text-blue-400" />
                 </div>
-                <div className="text-2xl font-black text-white">{data?.kpis?.activeBusinessUnits || 7}</div>
-                <div className="text-[11px] text-slate-500">Autonomous operational entities</div>
+                <div className="text-2xl font-black text-white">{data?.businessUnits?.length || 8}</div>
+                <div className="text-[11px] text-emerald-400 flex items-center gap-1">
+                  <CheckCircle2 className="h-3 w-3" />
+                  <span>100% Verified Entities</span>
+                </div>
               </div>
 
               {/* Active Projects */}
-              <div className="bg-slate-900/80 border border-slate-800 p-4 rounded-xl shadow-sm space-y-1">
+              <div className="bg-[#0B1728] border border-[#182C48] p-4 rounded-xl shadow-md space-y-1">
                 <div className="flex items-center justify-between text-slate-400 text-xs">
                   <span>Active Projects</span>
                   <FolderGit2 className="h-4 w-4 text-purple-400" />
                 </div>
                 <div className="text-2xl font-black text-white">{data?.kpis?.activeProjects || 3}</div>
-                <div className="text-[11px] text-emerald-400">100% scoped with milestones</div>
+                <div className="text-[11px] text-slate-400">Scoped with milestones</div>
               </div>
 
               {/* Overdue Work */}
-              <div className="bg-slate-900/80 border border-slate-800 p-4 rounded-xl shadow-sm space-y-1">
+              <div className="bg-[#0B1728] border border-[#182C48] p-4 rounded-xl shadow-md space-y-1">
                 <div className="flex items-center justify-between text-slate-400 text-xs">
                   <span>Overdue Tasks</span>
                   <Clock className="h-4 w-4 text-amber-400" />
                 </div>
-                <div className="text-2xl font-black text-amber-400">
+                <div className="text-2xl font-black text-[#D4AF37]">
                   {data?.kpis?.overdueTasksCount ?? 0}
                 </div>
-                <div className="text-[11px] text-slate-500">Past target completion date</div>
+                <div className="text-[11px] text-slate-400">Target completion elapsed</div>
               </div>
 
               {/* Critical Blockers */}
-              <div className="bg-slate-900/80 border border-slate-800 p-4 rounded-xl shadow-sm space-y-1">
+              <div className="bg-[#0B1728] border border-[#182C48] p-4 rounded-xl shadow-md space-y-1">
                 <div className="flex items-center justify-between text-slate-400 text-xs">
-                  <span>Blocked Work</span>
+                  <span>Operational Blockers</span>
                   <AlertOctagon className="h-4 w-4 text-red-400" />
                 </div>
                 <div className="text-2xl font-black text-red-400">
                   {data?.kpis?.blockedTasksCount ?? 0}
                 </div>
-                <div className="text-[11px] text-red-400/80">Requires executive intervention</div>
+                <div className="text-[11px] text-red-400/80">Requires executive sign-off</div>
               </div>
 
-              {/* Tasks Awaiting Review */}
-              <div className="bg-slate-900/80 border border-slate-800 p-4 rounded-xl shadow-sm space-y-1">
+              {/* In Review Deliverables */}
+              <div className="bg-[#0B1728] border border-[#182C48] p-4 rounded-xl shadow-md space-y-1">
                 <div className="flex items-center justify-between text-slate-400 text-xs">
                   <span>In Review</span>
                   <CheckCircle className="h-4 w-4 text-blue-400" />
@@ -146,23 +169,23 @@ export default function CEOCommandPage() {
                 <div className="text-2xl font-black text-blue-400">
                   {data?.kpis?.inReviewTasks ?? 0}
                 </div>
-                <div className="text-[11px] text-slate-500">Deliverables ready for audit</div>
+                <div className="text-[11px] text-slate-400">Deliverables ready for audit</div>
               </div>
 
               {/* Pending Approvals */}
-              <div className="bg-slate-900/80 border border-slate-800 p-4 rounded-xl shadow-sm space-y-1">
+              <div className="bg-[#0B1728] border border-[#182C48] p-4 rounded-xl shadow-md space-y-1">
                 <div className="flex items-center justify-between text-slate-400 text-xs">
-                  <span>Pending Decisions</span>
-                  <FileCheck2 className="h-4 w-4 text-amber-400" />
+                  <span>Pending Approvals</span>
+                  <FileCheck2 className="h-4 w-4 text-[#D4AF37]" />
                 </div>
-                <div className="text-2xl font-black text-amber-400">
+                <div className="text-2xl font-black text-[#D4AF37]">
                   {data?.kpis?.pendingApprovalsCount ?? 0}
                 </div>
-                <div className="text-[11px] text-slate-500">Capital & sign-off queue</div>
+                <div className="text-[11px] text-slate-400">Capital & governance queue</div>
               </div>
 
               {/* Daily Reports Today */}
-              <div className="bg-slate-900/80 border border-slate-800 p-4 rounded-xl shadow-sm space-y-1">
+              <div className="bg-[#0B1728] border border-[#182C48] p-4 rounded-xl shadow-md space-y-1">
                 <div className="flex items-center justify-between text-slate-400 text-xs">
                   <span>Reports Logged</span>
                   <TrendingUp className="h-4 w-4 text-emerald-400" />
@@ -170,18 +193,63 @@ export default function CEOCommandPage() {
                 <div className="text-2xl font-black text-emerald-400">
                   {data?.kpis?.dailyReportsToday ?? 0}
                 </div>
-                <div className="text-[11px] text-slate-500">Submitted today with outcomes</div>
+                <div className="text-[11px] text-slate-400">Verified standup submissions</div>
               </div>
 
               {/* Total Workforce */}
-              <div className="bg-slate-900/80 border border-slate-800 p-4 rounded-xl shadow-sm space-y-1">
+              <div className="bg-[#0B1728] border border-[#182C48] p-4 rounded-xl shadow-md space-y-1">
                 <div className="flex items-center justify-between text-slate-400 text-xs">
-                  <span>Workforce & Interns</span>
+                  <span>Total Workforce</span>
                   <Users className="h-4 w-4 text-slate-300" />
                 </div>
                 <div className="text-2xl font-black text-white">{data?.kpis?.totalStaff || 6}</div>
-                <div className="text-[11px] text-slate-500">Permanent, interns & contractors</div>
+                <div className="text-[11px] text-slate-400">Staff, interns & contractors</div>
               </div>
+            </div>
+
+            {/* Quick Navigation Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Link
+                href="/app/whatsapp"
+                className="p-4 bg-[#0B1728] hover:bg-[#0E2038] border border-[#182C48] hover:border-[#D4AF37]/50 rounded-xl transition flex items-center justify-between group"
+              >
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 text-[#D4AF37] font-bold text-xs">
+                    <MessageSquare className="h-4 w-4" />
+                    <span>WhatsApp Command Centre</span>
+                  </div>
+                  <p className="text-xs text-slate-400">Inbound webhooks, voice note STT, and natural language command router</p>
+                </div>
+                <ArrowUpRight className="h-4 w-4 text-slate-500 group-hover:text-[#D4AF37] transition" />
+              </Link>
+
+              <Link
+                href="/app/agents"
+                className="p-4 bg-[#0B1728] hover:bg-[#0E2038] border border-[#182C48] hover:border-[#D4AF37]/50 rounded-xl transition flex items-center justify-between group"
+              >
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 text-[#D4AF37] font-bold text-xs">
+                    <Bot className="h-4 w-4" />
+                    <span>AI Agent Swarm</span>
+                  </div>
+                  <p className="text-xs text-slate-400">SuperAgent Chief of Staff + 12 specialist agents with tool calling</p>
+                </div>
+                <ArrowUpRight className="h-4 w-4 text-slate-500 group-hover:text-[#D4AF37] transition" />
+              </Link>
+
+              <Link
+                href="/app/knowledge"
+                className="p-4 bg-[#0B1728] hover:bg-[#0E2038] border border-[#182C48] hover:border-[#D4AF37]/50 rounded-xl transition flex items-center justify-between group"
+              >
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 text-[#D4AF37] font-bold text-xs">
+                    <BookOpen className="h-4 w-4" />
+                    <span>Central Knowledge Base</span>
+                  </div>
+                  <p className="text-xs text-slate-400">pgvector semantic search, source citations, facts vs assumptions</p>
+                </div>
+                <ArrowUpRight className="h-4 w-4 text-slate-500 group-hover:text-[#D4AF37] transition" />
+              </Link>
             </div>
 
             {/* The 5 Core Executive Questions Answered */}
@@ -189,48 +257,56 @@ export default function CEOCommandPage() {
               <ExecutiveQuestionsCard data={data.executiveAnswers} />
             )}
 
-            {/* Portfolio Business Units Grid */}
+            {/* Configured Business Workspaces Grid (All 8 Entities) */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-base font-bold text-white">Configured Business Units</h3>
+                  <h3 className="text-base font-bold text-white flex items-center gap-2">
+                    <span>Configured Business Workspaces</span>
+                    <span className="text-xs font-mono font-normal px-2 py-0.5 rounded bg-[#0F223D] text-[#D4AF37]">
+                      {displayedBUs.length} Entities
+                    </span>
+                  </h3>
                   <p className="text-xs text-slate-400">
-                    Each business unit has isolated workstreams, permissions, and deliverable registers
+                    Multi-tenant isolated workstreams with business-level permissions and verified data
                   </p>
                 </div>
                 <Link
                   href="/app/portfolio"
-                  className="text-xs text-amber-400 hover:text-amber-300 font-semibold"
+                  className="text-xs text-[#D4AF37] hover:text-[#F1C40F] font-semibold"
                 >
-                  View Details →
+                  Manage Portfolio →
                 </Link>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {data?.businessUnits?.map((bu: any) => (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {displayedBUs.map((bu: any) => (
                   <div
                     key={bu.id}
-                    className="p-5 bg-slate-900/90 border border-slate-800 rounded-xl space-y-3 hover:border-slate-700 transition"
+                    className="p-4 bg-[#0B1728] border border-[#182C48] rounded-xl space-y-3 hover:border-[#1E3A5F] transition"
                   >
                     <div className="flex items-start justify-between">
-                      <div>
-                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
-                          {bu.code}
-                        </span>
-                        <h4 className="text-base font-bold text-white mt-1.5">{bu.name}</h4>
-                      </div>
-                      <span className="h-3 w-3 rounded-full bg-emerald-400" title="Active" />
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#0F223D] text-[#D4AF37] border border-[#1E3A5F]">
+                        {bu.code}
+                      </span>
+                      <span className="inline-flex items-center gap-1 text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-1.5 py-0.2 rounded">
+                        <ShieldCheck className="h-3 w-3" />
+                        <span>Verified</span>
+                      </span>
                     </div>
 
-                    <p className="text-xs text-slate-400 leading-relaxed line-clamp-2">
-                      {bu.description}
-                    </p>
+                    <div>
+                      <h4 className="text-sm font-bold text-white line-clamp-1">{bu.name}</h4>
+                      <p className="text-xs text-slate-400 leading-relaxed line-clamp-2 mt-1">
+                        {bu.description}
+                      </p>
+                    </div>
 
-                    <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
-                      <span>Status: <strong className="text-emerald-400 capitalize">{bu.status}</strong></span>
+                    <div className="pt-2 border-t border-[#182C48] flex items-center justify-between text-xs text-slate-400">
+                      <span className="text-[11px]">Status: <strong className="text-emerald-400 capitalize">{bu.status}</strong></span>
                       <Link
                         href={`/app/tasks?bu=${bu.id}`}
-                        className="text-amber-400 hover:text-amber-300 font-medium"
+                        className="text-[#D4AF37] hover:text-[#F1C40F] font-semibold text-xs"
                       >
                         Tasks & PRs →
                       </Link>

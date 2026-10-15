@@ -23,7 +23,7 @@ export default function ApprovalsPage() {
       const appData = await appRes.json();
       const ovData = await ovRes.json();
 
-      setApprovals(appData);
+      setApprovals(appData || []);
       setUsers(ovData.users || []);
       if (!currentPersona && ovData.users?.length > 0) {
         setCurrentPersona(ovData.users[0]);
@@ -40,7 +40,7 @@ export default function ApprovalsPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#070D1E] text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#060D1A] text-slate-100 flex flex-col font-sans">
       <Navigation
         currentPersona={currentPersona}
         onPersonaChange={(u) => setCurrentPersona(u)}
@@ -48,23 +48,23 @@ export default function ApprovalsPage() {
       />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div className="flex items-center justify-between border-b border-[#182C48] pb-4">
           <div>
-            <div className="flex items-center space-x-2 text-xs text-amber-400 font-semibold uppercase tracking-wider">
+            <div className="flex items-center space-x-2 text-xs text-[#D4AF37] font-semibold uppercase tracking-wider">
               <FileCheck2 className="h-4 w-4" />
               <span>Governance & Authorization Gateway</span>
             </div>
             <h1 className="text-2xl font-black text-white mt-1">
-              Executive Approvals & Decision Queue
+              Executive Approvals & Governance Queue
             </h1>
             <p className="text-xs text-slate-400 mt-0.5">
-              Decide pending capital disbursements, verify deliverables, and authorize critical project escalations.
+              Strict two-tier gate: decide pending capital disbursements, verify deliverables, and authorize critical agent operations.
             </p>
           </div>
 
           <Link
             href="/"
-            className="text-xs text-slate-400 hover:text-slate-200 px-3 py-1.5 rounded bg-slate-800 flex items-center gap-1"
+            className="text-xs text-slate-400 hover:text-white px-3 py-1.5 rounded-lg bg-[#0F223D] border border-[#1E3A5F] flex items-center gap-1 transition"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             <span>Dashboard</span>
@@ -73,7 +73,7 @@ export default function ApprovalsPage() {
 
         {loading ? (
           <div className="p-16 text-center text-slate-400 text-xs">
-            Loading approval queue items...
+            Loading approval queue items from Supabase...
           </div>
         ) : (
           <ApprovalsQueue

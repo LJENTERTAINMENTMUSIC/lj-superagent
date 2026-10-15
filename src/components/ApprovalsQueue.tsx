@@ -8,6 +8,7 @@ import {
   Clock,
   ExternalLink,
   AlertCircle,
+  ShieldCheck,
 } from 'lucide-react';
 import { ApprovalRequest, User } from '@/lib/types';
 
@@ -63,17 +64,17 @@ export function ApprovalsQueue({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl flex items-center justify-between">
+      <div className="bg-[#0B1728] border border-[#182C48] p-4 rounded-xl flex items-center justify-between">
         <div>
           <h3 className="text-sm font-bold text-white flex items-center gap-2">
-            <FileCheck2 className="h-4 w-4 text-amber-400" />
+            <FileCheck2 className="h-4 w-4 text-[#D4AF37]" />
             Executive & Operational Approvals Queue
           </h3>
           <p className="text-xs text-slate-400 mt-0.5">
             Strict authorization gateway for capital disbursements, deliverable sign-offs, and strategic decisions
           </p>
         </div>
-        <span className="text-xs font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 px-3 py-1 rounded-full">
+        <span className="text-xs font-mono font-bold bg-[#0F223D] text-[#D4AF37] border border-[#1E3A5F] px-3 py-1 rounded-full">
           {pendingList.length} Pending Actions
         </span>
       </div>
@@ -92,7 +93,7 @@ export function ApprovalsQueue({
         </h4>
 
         {pendingList.length === 0 ? (
-          <div className="p-8 text-center text-slate-500 bg-slate-900 border border-slate-800 rounded-xl text-xs">
+          <div className="p-8 text-center text-slate-500 bg-[#0B1728] border border-[#182C48] rounded-xl text-xs">
             Queue is clear. No pending approval requests requiring intervention.
           </div>
         ) : (
@@ -100,13 +101,13 @@ export function ApprovalsQueue({
             {pendingList.map((item) => (
               <div
                 key={item.id}
-                className="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-3 shadow-sm hover:border-slate-700 transition"
+                className="bg-[#0B1728] border border-[#182C48] rounded-xl p-4 space-y-3 shadow-sm hover:border-[#1E3A5F] transition"
               >
                 <div className="flex items-start justify-between">
                   <div>
                     <div className="font-bold text-sm text-slate-100 flex items-center gap-2">
                       {item.subject}
-                      <span className="text-[10px] uppercase font-semibold px-2 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-800">
+                      <span className="text-[10px] uppercase font-semibold px-2 py-0.5 rounded bg-[#0F223D] text-[#D4AF37] border border-[#1E3A5F]">
                         {item.entity_type}
                       </span>
                     </div>
@@ -115,7 +116,7 @@ export function ApprovalsQueue({
                     )}
                     <div className="text-[11px] text-slate-400 mt-2 flex items-center gap-4">
                       <span>
-                        Requester: <strong className="text-slate-200">{item.requester?.full_name}</strong>
+                        Requester: <strong className="text-slate-200">{item.requester?.full_name || 'SuperAgent'}</strong>
                       </span>
                       <span>Date: {new Date(item.created_at).toLocaleDateString()}</span>
                     </div>
@@ -123,7 +124,7 @@ export function ApprovalsQueue({
 
                   <button
                     onClick={() => setSelectedApproval(item)}
-                    className="px-3.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition"
+                    className="px-3.5 py-1.5 rounded-lg bg-[#D4AF37] hover:bg-[#F1C40F] text-[#060D1A] font-black text-xs transition"
                   >
                     Review & Decide
                   </button>
@@ -136,11 +137,11 @@ export function ApprovalsQueue({
 
       {/* Historical Approvals */}
       {pastList.length > 0 && (
-        <div className="space-y-3 pt-4 border-t border-slate-800">
+        <div className="space-y-3 pt-4 border-t border-[#182C48]">
           <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
             Completed Decision History
           </h4>
-          <div className="divide-y divide-slate-800 rounded-xl border border-slate-800 overflow-hidden bg-slate-900">
+          <div className="divide-y divide-[#182C48] rounded-xl border border-[#182C48] overflow-hidden bg-[#0B1728]">
             {pastList.map((item) => (
               <div key={item.id} className="p-3.5 flex items-center justify-between text-xs">
                 <div>
@@ -174,14 +175,14 @@ export function ApprovalsQueue({
       {/* Decision Modal */}
       {selectedApproval && (
         <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
-            <div className="border-b border-slate-800 pb-3">
+          <div className="bg-[#0B1728] border border-[#182C48] rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+            <div className="border-b border-[#182C48] pb-3">
               <h3 className="text-sm font-bold text-white">Record Executive Decision</h3>
               <div className="text-xs text-slate-400 mt-1 font-semibold">{selectedApproval.subject}</div>
             </div>
 
             {selectedApproval.details && (
-              <div className="p-3 bg-slate-950 rounded text-xs text-slate-300 border border-slate-800">
+              <div className="p-3 bg-[#060D1A] rounded text-xs text-slate-300 border border-[#182C48]">
                 {selectedApproval.details}
               </div>
             )}
@@ -193,15 +194,15 @@ export function ApprovalsQueue({
                 value={decisionNotes}
                 onChange={(e) => setDecisionNotes(e.target.value)}
                 placeholder="State conditions, disbursement instructions, or feedback..."
-                className="w-full bg-slate-800 border border-slate-700 rounded p-2 text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-amber-400"
+                className="w-full bg-[#060D1A] border border-[#182C48] rounded p-2 text-slate-200 text-xs focus:outline-none focus:border-[#D4AF37]"
               />
             </div>
 
-            <div className="flex items-center justify-between pt-2 border-t border-slate-800">
+            <div className="flex items-center justify-between pt-2 border-t border-[#182C48]">
               <button
                 type="button"
                 onClick={() => setSelectedApproval(null)}
-                className="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs"
+                className="px-3 py-1.5 rounded bg-[#0F223D] hover:bg-[#163156] text-slate-300 text-xs"
               >
                 Cancel
               </button>

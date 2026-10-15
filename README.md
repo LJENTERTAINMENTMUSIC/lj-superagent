@@ -143,3 +143,15 @@ npm run build
 10. **Automated Tests**: 18/18 tests passing in Node test runner.
 11. **Deployment Documentation**: Complete environment and runbook specifications documented.
 12. **Zero Leaked Secrets**: Verified zero hardcoded secrets in frontend code or git repository.
+
+---
+
+## 8. Deployment & CI/CD Pipelines
+
+- **GitHub Repository**: [`LJENTERTAINMENTMUSIC/lj-superagent`](https://github.com/LJENTERTAINMENTMUSIC/lj-superagent)
+- **Continuous Integration**: GitHub Actions workflow runs all 18 security and operational workflow tests followed by a Next.js Turbopack production build on every push to `master`.
+- **Vercel Production Deployment**:
+  - Project configuration is defined in [`vercel.json`](./vercel.json).
+  - To connect via Vercel Dashboard, import [`LJENTERTAINMENTMUSIC/lj-superagent`](https://github.com/LJENTERTAINMENTMUSIC/lj-superagent).
+  - Configure production environment variables in the Vercel project settings matching `.env.local`.
+
